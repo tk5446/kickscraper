@@ -8,7 +8,6 @@ class KSToken < Faraday::Middleware
   end
 
   def call(env)
-    puts "env[:url] 1 :: #{env[:url]}" 
     # replace '+' symbols in the query params with their original spaces, because there
     # seems to be a bug in the way some versions of Fararay escape parameters with spaces
     env[:url].query_params.each { |key, value|
@@ -22,8 +21,6 @@ class KSToken < Faraday::Middleware
       env[:url].query_params['oauth_token'] = Kickscraper.token unless Kickscraper.token.nil?
     end
 
-    puts "env[:url] 2 :: #{env[:url]}" 
-    
     # make the call
     @app.call(env)
   end

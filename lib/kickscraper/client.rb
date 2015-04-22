@@ -93,13 +93,9 @@ module Kickscraper
         
         
         def process_api_url(request_for, api_url, coerce_response = true)
-
-            puts "process_api_url beginning"
             
             # make the api call to whatever url we specified
             response = connection.get(api_url)
-            
-            puts "process_api_url response :: #{response.body}"
             
             # if we want to coerce the response, do it now
             if coerce_response
@@ -124,12 +120,6 @@ module Kickscraper
             # get the body from the response
             body = response.body
 
-            puts "*"*50
-            puts "1 body :: #{body}"
-            puts "1 body.projects :: #{body.projects}"
-            puts "*"*50
-
-            
             # if we got an error response back, stop here and return an empty response
             return empty_response if response.headers['status'].to_i >= 400 || !response.headers['content-type'].start_with?('application/json')
             return empty_response if (body.respond_to?("error_messages") && !body.error_messages.empty?) || (body.respond_to?("http_code") && body.http_code == 404)
@@ -146,7 +136,6 @@ module Kickscraper
                 Project.coerce body
                 
             when "projects"
-                puts "inside coerce_api_response :: projects"
                 
                 # if the body is just an array of projects, with no root keys, then coerce
                 # the array
@@ -165,12 +154,9 @@ module Kickscraper
                     
                 # else, determine if we can load more projects and then return an array of projects
                 else
-                    puts "inside coerce_api_response :: projects IN ELSE"
                     if @last_api_call_params && !body.total_hits.nil?
                         @more_projects_available = @last_api_call_params[:page] * 20 < body.total_hits # (there is a huge assumption here that Kickstarter will always return 20 projects per page!)
                     end
-                    puts "2 body :: #{body}"
-                    puts "2 body.projects :: #{body.projects}"
                     return body.projects.map { |project| Project.coerce project }
                 end
                 
