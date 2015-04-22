@@ -166,7 +166,7 @@ module Kickscraper
                         @more_projects_available = @last_api_call_params[:page] * 20 < body.total_hits # (there is a huge assumption here that Kickstarter will always return 20 projects per page!)
                     end
                     puts "body.projects :: #{body.projects}"
-                    return body.projects.map { |project| Project.coerce project }
+                    return body.map { |project| Project.coerce project }
                 end
                 
             when "comments"
