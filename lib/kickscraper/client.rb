@@ -138,6 +138,7 @@ module Kickscraper
                 Project.coerce body
                 
             when "projects"
+                puts "inside coerce_api_response :: projects"
                 
                 # if the body is just an array of projects, with no root keys, then coerce
                 # the array
@@ -156,7 +157,7 @@ module Kickscraper
                     
                 # else, determine if we can load more projects and then return an array of projects
                 else
-                    
+                    puts "inside coerce_api_response :: projects IN ELSE"
                     if @last_api_call_params && !body.total_hits.nil?
                         @more_projects_available = @last_api_call_params[:page] * 20 < body.total_hits # (there is a huge assumption here that Kickstarter will always return 20 projects per page!)
                     end
