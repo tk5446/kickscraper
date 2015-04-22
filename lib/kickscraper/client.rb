@@ -93,10 +93,13 @@ module Kickscraper
         
         
         def process_api_url(request_for, api_url, coerce_response = true)
+
+            puts "process_api_url beginning"
             
             # make the api call to whatever url we specified
             response = connection.get(api_url)
             
+            puts "process_api_url response :: #{response.body}"
             
             # if we want to coerce the response, do it now
             if coerce_response
