@@ -122,7 +122,8 @@ module Kickscraper
             body = response.body
 
             puts "*"*50
-            puts "response.body :: #{body}"
+            puts "1 body :: #{body}"
+            puts "1 body.projects :: #{body.projects}"
             puts "*"*50
 
             
@@ -165,8 +166,9 @@ module Kickscraper
                     if @last_api_call_params && !body.total_hits.nil?
                         @more_projects_available = @last_api_call_params[:page] * 20 < body.total_hits # (there is a huge assumption here that Kickstarter will always return 20 projects per page!)
                     end
-                    puts "body.projects :: #{body.projects}"
-                    return body.map { |project| Project.coerce project }
+                    puts "2 body :: #{body}"
+                    puts "2 body.projects :: #{body.projects}"
+                    return body.projects.map { |project| Project.coerce project }
                 end
                 
             when "comments"
