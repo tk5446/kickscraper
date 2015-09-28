@@ -75,20 +75,32 @@ module Kickscraper
 
 
         def process_api_call(request_for, additional_path, search_terms = "", page = nil)
-            
-            # save the parameters for this call, so we can repeat it to get the next page of results
-            @last_api_call_params = {
-                request_for: request_for, 
-                additional_path: additional_path, 
-                search_terms: search_terms,
-                page: page.nil? ? 1 : page
-            }
-            
-            # make the api call (to the API resource we want)
-            response = self::make_api_call(request_for, additional_path, search_terms, page)
-            
-            # handle the response, returning an object with the results
-            self::coerce_api_response(request_for, response)
+            puts "process_api_call begin..."
+            begin 
+                # save the parameters for this call, so we can repeat it to get the next page of results
+                @last_api_call_params = {
+                    request_for: request_for, 
+                    additional_path: additional_path, 
+                    search_terms: search_terms,
+                    page: page.nil? ? 1 : page
+                }
+                puts "process_api_call @last_api_call_params :: #{@last_api_call_params}"
+                
+                # make the api call (to the API resource we want)
+                response = self::make_api_call(request_for, additional_path, search_terms, page)
+
+                puts "process_api_call response :: #{response.insepct}"
+                
+                # handle the response, returning an object with the results
+                self::coerce_api_response(request_for, response)
+
+                puts "process_api_call after call to coerce"
+
+            rescue
+              puts "ERROR WITH process_api_call :: #{$!}"
+            end# begin
+
+
         end
         
         
