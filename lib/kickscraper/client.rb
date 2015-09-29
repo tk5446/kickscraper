@@ -89,7 +89,7 @@ module Kickscraper
                 # make the api call (to the API resource we want)
                 response = self::make_api_call(request_for, additional_path, search_terms, page)
 
-                puts "process_api_call response :: #{response.insepct}"
+                puts "process_api_call response :: #{response.inspect}"
                 
                 # handle the response, returning an object with the results
                 self::coerce_api_response(request_for, response)
