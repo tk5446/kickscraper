@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec-core"
 
-  spec.add_runtime_dependency('faraday'
+  spec.add_runtime_dependency 'faraday'
   spec.add_runtime_dependency 'faraday_middleware'
   # spec.add_runtime_dependency('faraday', '>= 0.7.4', '< 0.10')
   # spec.add_runtime_dependency('faraday_middleware', '0.9.1')
