@@ -2,6 +2,7 @@ module Kickscraper
     class Api
         extend Connection
         include Hashie::Extensions::Coercion
+        include Hashie::Extensions::IgnoreUndeclared
         attr_accessor :raw
 
         def initialize(blob)
