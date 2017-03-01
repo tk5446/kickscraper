@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   # spec.add_runtime_dependency('faraday', '>= 0.7.4', '< 0.10')
   # spec.add_runtime_dependency('faraday_middleware', '0.9.1')
   spec.add_runtime_dependency('multi_json', '>= 1.0.3', '~> 1.0')
-  spec.add_runtime_dependency('hashie',  '~> 2')
+  spec.add_runtime_dependency('hashie',  '>= 3.0')
   spec.add_runtime_dependency('uri-query_params')
 
 end
