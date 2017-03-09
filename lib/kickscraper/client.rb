@@ -6,6 +6,8 @@ module Kickscraper
         
         attr_accessor :user
         
+        CLIENT_ID = '2II5GGBZLOOZAA5XBU1U0Y44BU57Q58L8KOGM7H0E0YFHP3KTG'
+
         def initialize
             @more_projects_available = false
 
@@ -13,7 +15,7 @@ module Kickscraper
                 @user = nil
             else
                 if Kickscraper.token.nil?
-                    token_response = connection.post('xauth/access_token?client_id=2II5GGBZLOOZAA5XBU1U0Y44BU57Q58L8KOGM7H0E0YFHP3KTG', {'email' => Kickscraper.email, 'password' => Kickscraper.password }.to_json)
+                    token_response = connection.post("xauth/access_token?client_id=#{CLIENT_ID}", {'email' => Kickscraper.email, 'password' => Kickscraper.password }.to_json)
                     if token_response.body.error_messages
                         raise token_response.body.error_messages.join("\n")
                         return
@@ -32,8 +34,8 @@ module Kickscraper
             self::process_api_call "project", id_or_slug.to_s
         end
 
-        def search_projects(search_terms, page = nil)
-            self::process_api_call "projects", "advanced", search_terms, page
+        def search_projects(search_terms, page = nil, category_id = nil, state = nil)
+            self::process_api_call "projects", "advanced", search_terms, page, category_id, state
         end
 
         def ending_soon_projects(page = nil)
@@ -58,7 +60,7 @@ module Kickscraper
 
         def load_more_projects
             if self::more_projects_available?
-                self::process_api_call @last_api_call_params[:request_for], @last_api_call_params[:additional_path], @last_api_call_params[:search_terms], (@last_api_call_params[:page] + 1)
+                self::process_api_call @last_api_call_params[:request_for], @last_api_call_params[:additional_path], @last_api_call_params[:search_terms], (@last_api_call_params[:page] + 1),  @last_api_call_params[:category_id],  @last_api_call_params[:state] 
             else
                 []
             end
@@ -74,33 +76,23 @@ module Kickscraper
         end
 
 
-        def process_api_call(request_for, additional_path, search_terms = "", page = nil)
-            puts "process_api_call begin..."
-            begin 
-                # save the parameters for this call, so we can repeat it to get the next page of results
-                @last_api_call_params = {
-                    request_for: request_for, 
-                    additional_path: additional_path, 
-                    search_terms: search_terms,
-                    page: page.nil? ? 1 : page
-                }
-                puts "process_api_call @last_api_call_params :: #{@last_api_call_params}"
-                
-                # make the api call (to the API resource we want)
-                response = self::make_api_call(request_for, additional_path, search_terms, page)
-
-                puts "process_api_call response :: #{response.inspect}"
-                
-                # handle the response, returning an object with the results
-                self::coerce_api_response(request_for, response)
-
-                # puts "process_api_call after call to coerce"
-
-            rescue
-              puts "ERROR WITH process_api_call :: #{$!}"
-            end# begin
-
-
+        def process_api_call(request_for, additional_path, search_terms = "", page = nil, category_id = nil, state = nil)
+            
+            # save the parameters for this call, so we can repeat it to get the next page of results
+            @last_api_call_params = {
+                request_for: request_for, 
+                additional_path: additional_path, 
+                search_terms: search_terms,
+                page: page.nil? ? 1 : page,
+                category_id: category_id,
+                state: state
+            }
+            
+            # make the api call (to the API resource we want)
+            response = self::make_api_call(request_for, additional_path, search_terms, page, category_id,state)
+            
+            # handle the response, returning an object with the results
+            self::coerce_api_response(request_for, response)
         end
         
         
@@ -108,6 +100,7 @@ module Kickscraper
             
             # make the api call to whatever url we specified
             response = connection.get(api_url)
+            
             
             # if we want to coerce the response, do it now
             if coerce_response
@@ -132,6 +125,7 @@ module Kickscraper
             # get the body from the response
             body = response.body
 
+            
             # if we got an error response back, stop here and return an empty response
             return empty_response if response.headers['status'].to_i >= 400 || !response.headers['content-type'].start_with?('application/json')
             return empty_response if (body.respond_to?("error_messages") && !body.error_messages.empty?) || (body.respond_to?("http_code") && body.http_code == 404)
@@ -166,9 +160,11 @@ module Kickscraper
                     
                 # else, determine if we can load more projects and then return an array of projects
                 else
+                    
                     if @last_api_call_params && !body.total_hits.nil?
                         @more_projects_available = @last_api_call_params[:page] * 20 < body.total_hits # (there is a huge assumption here that Kickstarter will always return 20 projects per page!)
                     end
+                    
                     return body.projects.map { |project| Project.coerce project }
                 end
                 
@@ -197,7 +193,7 @@ module Kickscraper
         end
         
         
-        def make_api_call(request_for, additional_path = "", search_terms = "", page = nil)
+        def make_api_call(request_for, additional_path = "", search_terms = "", page = nil, category_id = nil, state = nil)
             
             # set the url/path differently for each type of request
             case request_for.downcase
@@ -224,8 +220,10 @@ module Kickscraper
             params = {}
             params[:term] = search_terms unless search_terms.empty?
             params[:page] = page unless page.nil?
-            
-            
+            params[:category_id] = category_id unless category_id.nil? 
+            params[:state] = state unless state.nil?
+            params[:client_id] = CLIENT_ID if api_or_search == "api"
+
             # make the connection and return the response
             connection(api_or_search).get(path, params)
         end
