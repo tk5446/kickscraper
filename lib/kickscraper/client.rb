@@ -94,7 +94,7 @@ module Kickscraper
                 # handle the response, returning an object with the results
                 self::coerce_api_response(request_for, response)
 
-                puts "process_api_call after call to coerce"
+                # puts "process_api_call after call to coerce"
 
             rescue
               puts "ERROR WITH process_api_call :: #{$!}"
