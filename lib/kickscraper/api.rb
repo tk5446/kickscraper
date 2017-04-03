@@ -1,6 +1,11 @@
 module Kickscraper
     class Api
         extend Connection
+
+        def []=(key, value)
+        end        
+
+
         include Hashie::Extensions::Coercion
         include Hashie::Extensions::IgnoreUndeclared
         attr_accessor :raw
